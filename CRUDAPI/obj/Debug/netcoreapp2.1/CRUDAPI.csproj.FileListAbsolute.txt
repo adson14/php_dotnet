@@ -1,0 +1,14 @@
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.csprojAssemblyReference.cache
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.csproj.CoreCompileInputs.cache
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.RazorAssemblyInfo.cache
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.RazorAssemblyInfo.cs
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.AssemblyInfoInputs.cache
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.AssemblyInfo.cs
+C:\Users\adson\Desktop\DOT\CRUDAPI\bin\Debug\netcoreapp2.1\CRUDAPI.deps.json
+C:\Users\adson\Desktop\DOT\CRUDAPI\bin\Debug\netcoreapp2.1\CRUDAPI.runtimeconfig.json
+C:\Users\adson\Desktop\DOT\CRUDAPI\bin\Debug\netcoreapp2.1\CRUDAPI.runtimeconfig.dev.json
+C:\Users\adson\Desktop\DOT\CRUDAPI\bin\Debug\netcoreapp2.1\CRUDAPI.dll
+C:\Users\adson\Desktop\DOT\CRUDAPI\bin\Debug\netcoreapp2.1\CRUDAPI.pdb
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.RazorTargetAssemblyInfo.cache
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.dll
+C:\Users\adson\Desktop\DOT\CRUDAPI\obj\Debug\netcoreapp2.1\CRUDAPI.pdb
