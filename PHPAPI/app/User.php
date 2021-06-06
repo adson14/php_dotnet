@@ -2,6 +2,11 @@
 
 namespace App;
 
+use App\Models\Account;
+use App\Models\Card;
+use App\Models\Category;
+use App\Models\Expenditure;
+use App\Models\Incoming;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,8 +22,11 @@ class User extends Authenticatable implements  JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name','surname', 'email', 'password',
     ];
+
+
+    protected $primaryKey  = 'user_id';
 
     /**
      * The attributes that should be hidden for arrays.
@@ -52,4 +60,25 @@ class User extends Authenticatable implements  JWTSubject
     {
         return [];
     }
+
+    public function categories(){
+        return $this->hasMany(Category::class);
+    }
+
+    public function cards(){
+        return $this->hasMany(Card::class);
+    }
+
+    public function accounts(){
+        return $this->hasMany(Account::class);
+    }
+
+    public function incomings(){
+        return $this->hasMany(Incoming::class);
+    }
+
+    public function expenditures(){
+        return $this->hasMany(Expenditure::class);
+    }
+
 }

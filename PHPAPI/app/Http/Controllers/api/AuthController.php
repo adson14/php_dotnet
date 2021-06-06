@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -34,6 +35,14 @@ class AuthController extends Controller
         auth('api')->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    public function destroy($id)
+    {
+
+        $user = User::find($id);
+        $user->delete($id);
+
     }
 
 

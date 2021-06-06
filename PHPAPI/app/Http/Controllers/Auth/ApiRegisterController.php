@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 
@@ -28,5 +29,13 @@ class ApiRegisterController extends RegisterController
         $this->guard()->login($user);
 
         return response(['user' => $user]);
+    }
+
+    public function destroy($id)
+    {
+
+        $user = User::find($id);
+        $user->delete($id);
+
     }
 }
