@@ -15,17 +15,29 @@ class CategoryController extends Controller
      */
     public function index()
     {
-
         return response(Category::all());
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the specified resource.
      *
+     * @param int $id
      * @return Response
      */
-    public function create()
+    public function show(int $id)
     {
+
+
+        try{
+            $response = response(Category::query()->findOrFail($id));
+        } catch (\Exception $e){
+
+            return response(array('msg'=>'No data found with this id'), 404);
+        }
+
+
+        return  $response->content();
+
     }
 
     /**
@@ -37,42 +49,55 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
 
-        $request->validate([
-            'name' => 'required|max:30',
-            'type' => 'required',
-            'color' => 'required',
-        ]);
+        try{
 
-        $category = Category::create($request->all());
+            if(!$request->all()){
+                $e = new \Exception('No data has been sent.');
+                throw $e;
+            }
+
+            $request->validate([
+                'name' => 'required|max:30',
+                'type' => 'required',
+                'color' => 'required',
+            ]);
+
+            $category = Category::create($request->all());
+
+        } catch (\Exception $e){
+            return response(array('msg'=>$e->getMessage()), 400);
+        }
+
 
         return response($category, 201);
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show(int $id)
-    {
-        return response(Post::query()->findOrFail($id));
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param UpdatePostRequest $request
+     * @param Request $request
      * @param int $id
      * @return Response
      */
-    public function update(UpdatePostRequest $request, int $id)
+    public function update(Request $request, int $id)
     {
-        $post = Post::query()->findOrFail($id);
 
-        $post->update($request->only(['title', 'content']));
 
-        return response($post, 200);
+        try{
+            if(!$request->all()){
+                $e = new \Exception('No data has been sent.');
+                throw $e;
+            }
+
+            $category = Category::query()->findOrFail($id);
+            $category->update($request->all());
+        } catch (\Exception $e){
+
+            return response(array('msg'=>$e->getMessage()), 400);
+        }
+
+
+        return response($category, 200);
     }
 
     /**
@@ -84,11 +109,20 @@ class CategoryController extends Controller
      */
     public function destroy(int $id)
     {
+        /*
         if (!auth()->user()->isAdmin()) {
             abort(403);
         }
+        */
 
-        Post::query()->findOrFail($id)->delete();
+
+        try{
+            if(!Category::where('category_id',$id)->delete()){
+              throw new \Exception("Not found");
+            }
+        } catch (\Exception $e){
+            return response(array('msg'=>$e->getMessage()), 404);
+        }
 
         return response([], 204);
     }

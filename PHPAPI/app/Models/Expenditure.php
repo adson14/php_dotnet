@@ -6,13 +6,6 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class Expenditure
- * @package App\Models
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property Carbon $date_expenditure
- */
 
 class Expenditure extends Model
 {
@@ -21,11 +14,26 @@ class Expenditure extends Model
 
     protected $primaryKey = 'expenditure_id';
 
-    protected  $dates = [
-        'created_at',
-        'updated_at',
-        'date_expenditure'
-    ];
+  
+  
+    public function getDateFormat()
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+   // protected $dateFormat = 'Y-m-d H:i:sO';
+
+   protected $dateFormat = 'Y-m-d H:i:s.uO';
+
+    public function setDateExpenditureAttribute($value) {
+        $this->attributes['date_expenditure'] = empty($value) ? null : Carbon::parse($value)->format('Y-m-d');
+    }
+
+    public function getDateExpenditureAttribute($value)
+    {
+        
+        return Carbon::parse($value);
+    }
 
     public function cards(){
         return $this->belongsTo(Card::class);

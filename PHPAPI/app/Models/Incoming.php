@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property Carbon $date_expenditure
+ * @property Carbon $date_incoming
  */
 class Incoming extends Model
 {
@@ -23,7 +23,7 @@ class Incoming extends Model
     protected  $dates = [
         'created_at',
         'updated_at',
-        'date_expenditure'
+        'date_incoming'
     ];
 
     public function categories(){

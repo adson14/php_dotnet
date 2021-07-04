@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\AuthenticatedUserTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Card;
 
-class CardTest extends TestCase
+class CardTest extends AuthenticatedUserTestCase
 {
     use WithFaker;
 
@@ -19,34 +19,51 @@ class CardTest extends TestCase
     {
     }
 
-    public function testCreateCard(){
+    public function testCard(){
 
         //Caminho Feliz
-        $user = factory(\App\User::class)->create();
+
         $card = factory(Card::class)->make();
 
-        $this->actingAs($user)
-            ->post(route('cards.store'),$card->toArray())
-            ->assertSuccessful()
-            ->assertStatus(201);
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('cards.store'),$card->toArray());
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('cards.index'));
+        $bodyAll =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue(count($bodyAll) > 0, "There are no registered card");
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('cards.show',$body->card_id));
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $card = array("limit"=>2000);
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('PUT', route('cards.update',$body->card_id),$card);
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $corpo =  json_decode($response->getBody()->getContents());
 
         $this->assertDatabaseHas('cards',[
 
-            'user_id'=>$card->user_id,
-            'name'=>$card->name,
-            'type'=>$card->type,
-            'limit'=>$card->limit,
-            'created_at'=>now(),
-            'updated_at' =>now(),
-
+            'card_id'=>$corpo->card_id,
+            'user_id'=>$corpo->user_id,
+            'name'=>$corpo->name,
+            'limit'=>$corpo->limit,
+            'type'=>$corpo->type,
         ]);
 
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('DELETE', route('cards.delete',$body->card_id));
+        $this->assertEquals(204, $response->getStatusCode());
+
         //Caminho Triste
-        $card = factory(Card::class)->make(['limit'=>0]);
-
-        $this->actingAs($user)
-            ->post(route('cards.store'),$card->toArray())
-            ->assertStatus(302);
-
+        $card = array();
+        $this->expectException(\Exception::class);
+        $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('cards.store'),$card);
     }
+
 }

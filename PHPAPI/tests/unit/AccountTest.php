@@ -3,50 +3,71 @@
 namespace Tests\Unit;
 
 use App\Models\Account;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\AuthenticatedUserTestCase;
 
-class AccountTest extends TestCase
+class AccountTest extends AuthenticatedUserTestCase
 {
 
     use WithFaker;
+
+
     protected function _before()
     {
+
     }
 
     protected function _after()
     {
     }
 
-    public function testCreateAccount(){
+
+    public function testAccount(){
 
         //Caminho Feliz
-        $user = factory(\App\User::class)->create();
+
         $account = factory(Account::class)->make();
 
-        $this->actingAs($user)
-            ->post(route('accounts.store'),$account->toArray())
-            ->assertSuccessful()
-            ->assertStatus(201);
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('accounts.store'),$account->toArray());
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('accounts.index'));
+        $bodyAll =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue(count($bodyAll) > 0, "There are no registered accounts");
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('accounts.show',$body->account_id));
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $account = array("account_number"=>69800);
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('PUT', route('accounts.update',$body->account_id),$account);
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $corpo =  json_decode($response->getBody()->getContents());
 
         $this->assertDatabaseHas('accounts',[
 
-
-            'name'=>$account->name,
-            'account_number'=>$account->account_number,
-            'user_id'=>$account->user_id,
-            'created_at'=>now(),
-            'updated_at' =>now(),
-
+            'account_id'=>$corpo->account_id,
+            'user_id'=>$corpo->user_id,
+            'name'=>$corpo->name,
+            'account_number'=>$corpo->account_number,
         ]);
 
-        //Caminho Triste
-        $account = factory(Account::class)->make(['account_number'=>'']);
 
-        $this->actingAs($user)
-            ->post(route('accounts.store'),$account->toArray())
-            ->assertStatus(302);
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('DELETE', route('accounts.delete',$body->account_id));
+        $this->assertEquals(204, $response->getStatusCode());
+
+        //Caminho Triste
+        $account = array();
+        $this->expectException(\Exception::class);
+        $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('accounts.store'),$account);
 
     }
+
 }

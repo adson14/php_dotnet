@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Models\Category;
-use Tests\TestCase;
+use Tests\AuthenticatedUserTestCase;
 
-class CategoryTest extends TestCase
+class CategoryTest extends AuthenticatedUserTestCase
 {
     /**
      * @var \UnitTester
@@ -21,37 +21,50 @@ class CategoryTest extends TestCase
     }
 
 
-    public function testCreateCategory(){
+    public function testCategory(){
 
-    //Caminho Feliz
-        $user = factory(\App\User::class)->create();
         $category = factory(Category::class)->make();
 
-        $response = $this->actingAs($user)
-            ->post(route('categories.store'),$category->toArray())
-            ->assertSuccessful()
-            ->assertStatus(201);
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('categories.store'),$category->toArray());
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('categories.index'));
+        $bodyAll =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue(count($bodyAll) > 0, "There are no registered category");
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('GET', route('categories.show',$body->category_id));
+        $body =  json_decode($response->getBody()->getContents());
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $category = array("limit"=>2000);
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('PUT', route('categories.update',$body->category_id),$category);
+        $this->assertEquals(200, $response->getStatusCode());
+
+
+        $corpo =  json_decode($response->getBody()->getContents());
 
         $this->assertDatabaseHas('categories',[
 
-            'user_id'=>$category->user_id,
-            'name'=>$category->name,
-            'type'=>$category->type,
-            'color'=>$category->color,
-            'created_at'=>now(),
-            'updated_at' =>now(),
-
+            'category_id'=>$corpo->category_id,
+            'user_id'=>$corpo->user_id,
+            'name'=>$corpo->name,
+            'type'=>$corpo->type,
         ]);
+
+
+        $response = $this->withoutMiddleware(ThrottleRequests::class)->callRoute('DELETE', route('categories.delete',$body->category_id));
+        $this->assertEquals(204, $response->getStatusCode());
 
         //Caminho Triste
-        $category = factory(Category::class)->make([
-            'name' => 'Abigail OtwellAbigail OtwellAbigail OtwellAbigail OtwellAbigail Otwell',
-        ]);
-
-        $this->actingAs($user)
-            ->post(route('categories.store'),$category->toArray())
-            ->assertStatus(302);
+        $category = array();
+        $this->expectException(\Exception::class);
+        $this->withoutMiddleware(ThrottleRequests::class)->callRoute('POST', route('categories.store'),$category);
 
     }
+
 
 }

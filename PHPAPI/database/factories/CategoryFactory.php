@@ -11,6 +11,6 @@ $factory->define(Category::class, function (Faker $faker) {
         'name' => $faker->name,
         'type' => $faker->title,
         'color' => '#FFFAAA',
-        'user_id' =>  function () { return factory(App\User::class)->create()->user_id;}
+        'user_id' =>  1
     ];
 });
